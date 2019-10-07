@@ -11,10 +11,19 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 var MAP_TOP = 130;
 var MAP_BOTTOM = 630;
 
+// Форма
+var formFields = document.querySelectorAll('fieldset');
+
+// Кнопки
+var ENTER_KEYCODE = 13;
+
 var mapPins = document.querySelector('.map__pins');
 var mapWidth = mapPins.offsetWidth;
 // Добавление карты в переменную.
 var map = document.querySelector('.map');
+// Обработка собыйтий
+var mapMainPin = document.querySelector('.map__pin--main');
+var form = document.querySelector('.ad-form');
 
 var pinTemplate = document.querySelector('#pin')
 .content
@@ -62,6 +71,7 @@ var generateAdvert = function () {
     }
   };
 };
+
 // Функция для создания массива из 8 JS объектов.
 var generateAdverts = function (advertsQuantity) {
   var result = [];
@@ -91,6 +101,92 @@ var pinShow = function (advertsToRender) {
   mapPins.appendChild(fragment);
 };
 
-map.classList.remove('map--faded');
-var adverts = generateAdverts(8);
-pinShow(adverts);
+// Нажатие на пин
+mapMainPin.addEventListener('mousedown', function () {
+  map.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+  setAttributeEnabled(formFields);
+});
+
+// Нажатие на enter
+mapMainPin.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    map.classList.remove('map--faded');
+    form.classList.remove('ad-form--disabled');
+    setAttributeEnabled(formFields);
+  }
+});
+
+var setAttributeDisabled = function () {
+  for (var i = 0; i < formFields.length; i++) {
+    formFields[i].setAttribute('disabled', 'disabled');
+  }
+};
+
+setAttributeDisabled(formFields);
+
+var setAttributeEnabled = function () {
+  for (var i = 0; i < formFields.length; i++) {
+    formFields[i].removeAttribute('disabled');
+  }
+};
+
+// Координаты пина
+var mapPinCoordinateX = parseInt(mapMainPin.style.left, 0);
+var mapPinCoordinateY = parseInt(mapMainPin.style.top, 0);
+// Адрес
+var fillAddress = document.querySelector('#address');
+
+fillAddress.value = mapPinCoordinateX + ', ' + mapPinCoordinateY;
+var guestCapacity = document.querySelector('#capacity');
+var numberOfRooms = document.querySelector('#room_number');
+
+var setNumberOfRoomsGuestCapacity = function () {
+  if (numberOfRooms.value === '1') {
+    guestCapacity[2].removeAttribute('disabled');
+    guestCapacity[0].setAttribute('disabled', 'disabled');
+    guestCapacity[1].setAttribute('disabled', 'disabled');
+    guestCapacity[3].setAttribute('disabled', 'disabled');
+
+  } else if (numberOfRooms.value === '2') {
+    guestCapacity[0].setAttribute('disabled', 'disabled');
+    guestCapacity[3].setAttribute('disabled', 'disabled');
+    guestCapacity[2].removeAttribute('disabled');
+  } else if (numberOfRooms.value === '3') {
+    guestCapacity[3].setAttribute('disabled', 'disabled');
+    guestCapacity[0].removeAttribute('disabled');
+    guestCapacity[1].removeAttribute('disabled');
+    guestCapacity[2].removeAttribute('disabled');
+  } else if (numberOfRooms.value === '100') {
+    guestCapacity[0].setAttribute('disabled', 'disabled');
+    guestCapacity[1].setAttribute('disabled', 'disabled');
+    guestCapacity[2].setAttribute('disabled', 'disabled');
+    guestCapacity[3].removeAttribute('disabled');
+  }
+};
+
+var validateGuestCapacity = function () {
+  if (numberOfRooms.value === '1' && (guestCapacity.value === '0' || guestCapacity.value === '2' || guestCapacity.value === '3')) {
+    guestCapacity.setCustomValidity('В однокомнатную квартиру разместить можно только 1 гостя');
+  } else if (numberOfRooms.value === '2' && (guestCapacity.value === '0' || guestCapacity.value === '3')) {
+    guestCapacity.setCustomValidity('В 2х комнатную квартиру разместить можно только 1 или 2х гостей');
+  } else if (numberOfRooms.value === '3' && guestCapacity.value === '0') {
+    guestCapacity.setCustomValidity('В 3х комнатную квартиру разместить можно только 1, 2х или 3х гостей');
+  } else if (numberOfRooms.value === '100' && !(guestCapacity.value === '0')) {
+    guestCapacity.setCustomValidity('В 100 комнатной квартире резмещать гостей нельзя');
+  } else {
+    guestCapacity.setCustomValidity('');
+  }
+};
+
+numberOfRooms.addEventListener('change', function () {
+  setNumberOfRoomsGuestCapacity();
+  validateGuestCapacity();
+});
+
+// Активация карты
+// map.classList.remove('map--faded');
+
+// Вызов объектов-пинов
+// var adverts = generateAdverts(8);
+// pinShow(adverts);
