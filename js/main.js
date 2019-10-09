@@ -34,7 +34,6 @@ var guestCapacity = document.querySelector('#capacity');
 // Количество комнат
 var numberOfRooms = document.querySelector('#room_number');
 
-
 var pinTemplate = document.querySelector('#pin')
 .content
 .querySelector('.map__pin');
@@ -46,7 +45,7 @@ var getRandomElement = function (advertItem) {
 
 // Функция для выбора случайных элементов 2.
 var shuffle = function (arr) {
-  var cmp = function (a, b) {
+  var cmp = function () {
     return 0.5 - Math.random();
   };
   return arr.sort(cmp);
@@ -116,6 +115,8 @@ mapMainPin.addEventListener('mousedown', function () {
   map.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   toggleElementsEnabled(formFields, true);
+  var adverts = generateAdverts(8);
+  pinShow(adverts);
 });
 
 // Нажатие на enter
@@ -124,6 +125,8 @@ mapMainPin.addEventListener('keydown', function (evt) {
     map.classList.remove('map--faded');
     form.classList.remove('ad-form--disabled');
     toggleElementsEnabled(formFields, true);
+    var adverts = generateAdverts(8);
+    pinShow(adverts);
   }
 });
 
@@ -141,7 +144,7 @@ toggleElementsEnabled(formFields, true);
 // Деактивация
 toggleElementsEnabled(formFields, false);
 // Адрес главного пина.
-var putAddress = function (mapPin) {
+var putAddress = function () {
   return parseInt(mapPin.style.left, 10) + ', ' + parseInt(mapPin.style.top, 10);
 };
 fillAddress.value = putAddress(mapMainPin);
