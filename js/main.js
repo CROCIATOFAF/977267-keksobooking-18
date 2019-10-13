@@ -24,9 +24,6 @@ var map = document.querySelector('.map');
 // Обработка собыйтий
 var mapMainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.ad-form');
-// Координаты пина
-// var mapPinCoordinateX = parseInt(mapMainPin.style.left, 0);
-// var mapPinCoordinateY = parseInt(mapMainPin.style.top, 0);
 // Адрес
 var fillAddress = document.querySelector('#address');
 // Вместимость
@@ -110,23 +107,22 @@ var pinShow = function (advertsToRender) {
   mapPins.appendChild(fragment);
 };
 
-// Нажатие на пин
-mapMainPin.addEventListener('mousedown', function () {
+// Открывает меню, карту.
+var openMap = function () {
   map.classList.remove('map--faded');
   form.classList.remove('ad-form--disabled');
   toggleElementsEnabled(formFields, true);
-  var adverts = generateAdverts(8);
-  pinShow(adverts);
+};
+
+// Нажатие на пин
+mapMainPin.addEventListener('mousedown', function () {
+  openMap();
 });
 
 // Нажатие на enter
 mapMainPin.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
-    map.classList.remove('map--faded');
-    form.classList.remove('ad-form--disabled');
-    toggleElementsEnabled(formFields, true);
-    var adverts = generateAdverts(8);
-    pinShow(adverts);
+    openMap();
   }
 });
 
@@ -139,10 +135,6 @@ var toggleElementsEnabled = function (elements, enabled) {
     }
   }
 };
-// Активация
-toggleElementsEnabled(formFields, true);
-// Деактивация
-toggleElementsEnabled(formFields, false);
 // Адрес главного пина.
 var putAddress = function () {
   return parseInt(mapPin.style.left, 10) + ', ' + parseInt(mapPin.style.top, 10);
@@ -150,19 +142,19 @@ var putAddress = function () {
 fillAddress.value = putAddress(mapMainPin);
 
 var validateGuestCapacity = function () {
-  if (numberOfRooms.value === Number('1') && (guestCapacity.value === Number('0') || guestCapacity.value === Number('2') || guestCapacity.value === Number('3'))) {
-    guestCapacity.setCustomValidity('В однокомнатную квартиру разместить можно только 1 гостя');
-  } else if (numberOfRooms.value === Number('2') && (guestCapacity.value === Number('0') || guestCapacity.value === Number('3'))) {
-    guestCapacity.setCustomValidity('В 2х комнатную квартиру разместить можно только 1 или 2х гостей');
-  } else if (numberOfRooms.value === Number('3') && guestCapacity.value === Number('0')) {
-    guestCapacity.setCustomValidity('В 3х комнатную квартиру разместить можно только 1, 2х или 3х гостей');
-  } else if (numberOfRooms.value === Number('100') && !(guestCapacity.value === Number('0'))) {
-    guestCapacity.setCustomValidity('В 100 комнатной квартире резмещать гостей нельзя');
-  } else {
-    guestCapacity.setCustomValidity('');
+  var rooms = parseInt(numberOfRooms.value, 10);
+  var guests = parseInt(guestCapacity.value, 10);
+
+  var errorMsg = '';
+  if (guests > rooms || (rooms === 100 && guests !== 0)) {
+    errorMsg = 'Количество гостей не соответствует количеству комнат';
   }
+
+  guestCapacity.setCustomValidity(errorMsg);
 };
 
-numberOfRooms.addEventListener('change', function () {
-  validateGuestCapacity();
-});
+numberOfRooms.addEventListener('change', validateGuestCapacity);
+guestCapacity.addEventListener('change', validateGuestCapacity);
+
+var adverts = generateAdverts(8);
+pinShow(adverts);
