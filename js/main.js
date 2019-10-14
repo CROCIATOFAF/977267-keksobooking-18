@@ -10,11 +10,26 @@ var DESCRIPTION = ['В квартире уютно', 'В квартире тих
 var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var MAP_TOP = 130;
 var MAP_BOTTOM = 630;
-
+// Форма
+var formFields = document.querySelectorAll('fieldset');
+// Кнопки
+var ENTER_KEYCODE = 13;
+// Пины
 var mapPins = document.querySelector('.map__pins');
+var mapPin = document.querySelector('.map__pin');
+// Ширина карты
 var mapWidth = mapPins.offsetWidth;
 // Добавление карты в переменную.
 var map = document.querySelector('.map');
+// Обработка собыйтий
+var mapMainPin = document.querySelector('.map__pin--main');
+var form = document.querySelector('.ad-form');
+// Адрес
+var fillAddress = document.querySelector('#address');
+// Вместимость
+var guestCapacity = document.querySelector('#capacity');
+// Количество комнат
+var numberOfRooms = document.querySelector('#room_number');
 
 var pinTemplate = document.querySelector('#pin')
 .content
@@ -27,7 +42,7 @@ var getRandomElement = function (advertItem) {
 
 // Функция для выбора случайных элементов 2.
 var shuffle = function (arr) {
-  var cmp = function (a, b) {
+  var cmp = function () {
     return 0.5 - Math.random();
   };
   return arr.sort(cmp);
@@ -62,6 +77,7 @@ var generateAdvert = function () {
     }
   };
 };
+
 // Функция для создания массива из 8 JS объектов.
 var generateAdverts = function (advertsQuantity) {
   var result = [];
@@ -91,6 +107,54 @@ var pinShow = function (advertsToRender) {
   mapPins.appendChild(fragment);
 };
 
-map.classList.remove('map--faded');
+// Открывает меню, карту.
+var openMap = function () {
+  map.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+  toggleElementsEnabled(formFields, true);
+};
+
+// Нажатие на пин
+mapMainPin.addEventListener('mousedown', function () {
+  openMap();
+});
+
+// Нажатие на enter
+mapMainPin.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    openMap();
+  }
+});
+
+var toggleElementsEnabled = function (elements, enabled) {
+  for (var i = 0; i < elements.length; i++) {
+    if (enabled) {
+      elements[i].removeAttribute('disabled');
+    } else {
+      elements[i].setAttribute('disabled', 'true');
+    }
+  }
+};
+// Адрес главного пина.
+var putAddress = function () {
+  return parseInt(mapPin.style.left, 10) + ', ' + parseInt(mapPin.style.top, 10);
+};
+fillAddress.value = putAddress(mapMainPin);
+
+var validateGuestCapacity = function () {
+  var rooms = parseInt(numberOfRooms.value, 10);
+  var guests = parseInt(guestCapacity.value, 10);
+
+  var errorMsg = '';
+  if (guests > rooms || (rooms === 100 && guests !== 0)) {
+    errorMsg = 'Количество гостей не соответствует количеству комнат';
+  }
+
+  guestCapacity.setCustomValidity(errorMsg);
+};
+
+numberOfRooms.addEventListener('change', validateGuestCapacity);
+guestCapacity.addEventListener('change', validateGuestCapacity);
+
 var adverts = generateAdverts(8);
 pinShow(adverts);
