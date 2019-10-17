@@ -31,3 +31,7 @@ window.fillAddress.value = window.putAddress(window.mapMainPin);
 
 window.numberOfRooms.addEventListener('change', window.validateGuestCapacity);
 window.guestCapacity.addEventListener('change', window.validateGuestCapacity);
+
+window.pinShow();
+window.renderPin();
+window.toggleElementsEnabled();

@@ -6,7 +6,7 @@
   // Пины
   var mapPins = document.querySelector('.map__pins');
 
-  var renderPin = function (advert) {
+  window.renderPin = function (advert) {
     var pin = pinTemplate.cloneNode(true);
     var pinPicture = pin.querySelector('img');
 
@@ -21,7 +21,7 @@
   window.pinShow = function (advertsToRender) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < advertsToRender.length; i++) {
-      fragment.appendChild(renderPin(advertsToRender[i]));
+      fragment.appendChild(window.renderPin(advertsToRender[i]));
     }
     mapPins.appendChild(fragment);
   };
