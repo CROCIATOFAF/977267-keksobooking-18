@@ -11,8 +11,8 @@
   var MAP_TOP = 130;
   var MAP_BOTTOM = 630;
   // Ширина карты
-  var mapWidth = window.mapPins.offsetWidth;
-
+  var mapPins = document.querySelector('.map__pins');
+  var mapWidth = mapPins.offsetWidth;
   // Функция для выбора случайных элементов.
   var getRandomElement = function (advertItem) {
     var randomIndex = Math.floor((advertItem.length - 1) * Math.random());
@@ -30,7 +30,7 @@
     return Math.floor(Math.random() * (maxNumber - minNumber) + minNumber);
   };
   // Создаёт данные карточек.
-  window.generateAdvert = function () {
+  var generateAdvert = function () {
     return {
       author: {
         avatar: 'img/avatars/user0' + getRandomNumber(1, 8) + '.png'
@@ -53,5 +53,13 @@
         y: getRandomNumber(MAP_TOP, MAP_BOTTOM)
       }
     };
+  };
+  // Функция для создания массива из 8 JS объектов.
+  window.generateAdverts = function (advertsQuantity) {
+    var result = [];
+    for (var i = 0; i < advertsQuantity; i++) {
+      result[i] = generateAdvert();
+    }
+    return result;
   };
 })();

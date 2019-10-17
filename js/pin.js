@@ -6,15 +6,6 @@
   // Пины
   var mapPins = document.querySelector('.map__pins');
 
-  // Функция для создания массива из 8 JS объектов.
-  var generateAdverts = function (advertsQuantity) {
-    var result = [];
-    for (var i = 0; i < advertsQuantity; i++) {
-      result[i] = window.generateAdvert();
-    }
-    return result;
-  };
-
   var renderPin = function (advert) {
     var pin = pinTemplate.cloneNode(true);
     var pinPicture = pin.querySelector('img');
@@ -27,14 +18,11 @@
     return pin;
   };
 
-  var pinShow = function (advertsToRender) {
+  window.pinShow = function (advertsToRender) {
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < advertsToRender.length; i++) {
       fragment.appendChild(renderPin(advertsToRender[i]));
     }
     mapPins.appendChild(fragment);
   };
-
-  var adverts = generateAdverts(8);
-  pinShow(adverts);
 })();
