@@ -1,14 +1,47 @@
 'use strict';
 (function () {
-  window.form = document.querySelector('.ad-form');
+  var form = document.querySelector('.ad-form');
   // Форма
-  window.formFields = document.querySelectorAll('fieldset');
+  var formFields = document.querySelectorAll('fieldset');
   // Адрес
-  window.fillAddress = document.querySelector('#address');
+  var fillAddress = document.querySelector('#address');
 
-  window.fillAddress.value = window.putAddress(window.mapMainPin);
   // Вместимость
   window.guestCapacity = document.querySelector('#capacity');
   // Количество комнат
   window.numberOfRooms = document.querySelector('#room_number');
+
+  window.getAddress = function (mainPin) {
+    return parseInt(mainPin.style.left, 10) + ', ' + parseInt(mainPin.style.top, 10);
+  };
+
+  // Модуль формы сам знает, что нужно активировать/деактивировать
+  // поэтому убираем аргумент и делаем переменную formFields локальной
+  window.toggleFieldsEnabled = function (enabled) {
+    for (var i = 0; i < formFields.length; i++) {
+      if (enabled) {
+        formFields[i].removeAttribute('disabled');
+      } else {
+        formFields[i].setAttribute('disabled', 'true');
+      }
+    }
+  };
+
+  window.validateRoomsAndGuests = function (guests, rooms) {
+    var errorMsg = '';
+
+    if (guests > rooms || (rooms === 100 && guests !== 0)) {
+      errorMsg = 'Количество гостей не соответствует количеству комнат';
+    }
+
+    return errorMsg;
+  };
+
+  window.enableForm = function () {
+    form.classList.remove('ad-form--disabled');
+  };
+
+  window.fillAddressField = function (address) {
+    fillAddress.value = address;
+  };
 })();

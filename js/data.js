@@ -10,14 +10,16 @@
   var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
   var MAP_TOP = 130;
   var MAP_BOTTOM = 630;
+
   // Ширина карты
-  var mapPins = document.querySelector('.map__pins');
-  var mapWidth = mapPins.offsetWidth;
+  var mapWidth = document.querySelector('.map__pins').offsetWidth;
+
   // Функция для выбора случайных элементов.
   var getRandomElement = function (advertItem) {
     var randomIndex = Math.floor((advertItem.length - 1) * Math.random());
     return advertItem[randomIndex];
   };
+
   // Функция для выбора случайных элементов 2.
   var shuffle = function (arr) {
     var cmp = function () {
@@ -25,10 +27,12 @@
     };
     return arr.sort(cmp);
   };
+
   // Функция для создания случайных номеров.
   var getRandomNumber = function (minNumber, maxNumber) {
     return Math.floor(Math.random() * (maxNumber - minNumber) + minNumber);
   };
+
   // Создаёт данные карточек.
   var generateAdvert = function () {
     return {
@@ -54,6 +58,7 @@
       }
     };
   };
+
   // Функция для создания массива из 8 JS объектов.
   window.generateAdverts = function (advertsQuantity) {
     var result = [];
