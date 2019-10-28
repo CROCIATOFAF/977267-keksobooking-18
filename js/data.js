@@ -8,12 +8,12 @@
   var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
   var DESCRIPTION = ['В квартире уютно', 'В квартире тихо, соседи не шумят', 'Квартира находится в пяти минутах от метро', 'В квартире новая мебель'];
   var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
-  var MAP_TOP = 130;
-  var MAP_BOTTOM = 630;
+  window.MAP_TOP = 130;
+  window.MAP_BOTTOM = 630;
 
   // Ширина карты
-  var mapWidth = document.querySelector('.map__pins').offsetWidth;
-
+  window.mapWidth = document.querySelector('.map__pins').offsetWidth;
+  window.mapHeight = document.querySelector('.map__pins').offsetHeight;
   // Функция для выбора случайных элементов.
   var getRandomElement = function (advertItem) {
     var randomIndex = Math.floor((advertItem.length - 1) * Math.random());
@@ -53,8 +53,8 @@
         photos: shuffle(PHOTOS).slice(getRandomNumber(0, PHOTOS.length))
       },
       location: {
-        x: getRandomNumber(0, mapWidth),
-        y: getRandomNumber(MAP_TOP, MAP_BOTTOM)
+        x: getRandomNumber(0, window.mapWidth),
+        y: getRandomNumber(window.MAP_TOP, window.MAP_BOTTOM)
       }
     };
   };
