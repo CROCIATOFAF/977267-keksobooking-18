@@ -29,7 +29,7 @@
   };
 
   window.form.addEventListener('submit', function (evt) {
-    window.upload(new FormData(window.form), function (response) {
+    window.upload(new FormData(window.form), function () {
       window.form.classList.add('ad-form--disabled');
     });
     evt.preventDefault();
