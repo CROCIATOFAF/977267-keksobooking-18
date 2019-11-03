@@ -5,7 +5,7 @@
 
   // Добавление карты в переменную.
   var map = document.querySelector('.map');
-  var mapPins = document.querySelector('.map__pins');
+  window.mapPins = document.querySelector('.map__pins');
 
   // Обработка собыйтий
   window.mapMainPin = document.querySelector('.map__pin--main');
@@ -23,7 +23,7 @@
       // Значит подключаться он должен после него
       fragment.appendChild(window.renderPin(adverts[i]));
     }
-    mapPins.appendChild(fragment);
+    window.mapPins.appendChild(fragment);
   };
 
   // Функция для переноса пина.

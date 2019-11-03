@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  var form = document.querySelector('.ad-form');
+  window.form = document.querySelector('.ad-form');
   // Форма
   var formFields = document.querySelectorAll('fieldset');
   // Адрес
@@ -38,10 +38,11 @@
   };
 
   window.enableForm = function () {
-    form.classList.remove('ad-form--disabled');
+    window.form.classList.remove('ad-form--disabled');
   };
 
   window.fillAddressField = function (address) {
     fillAddress.value = address;
   };
+
 })();

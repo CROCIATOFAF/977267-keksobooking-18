@@ -31,5 +31,11 @@ window.toggleFieldsEnabled(false);
 
 window.fillAddressField(window.getAddress(window.mapMainPin));
 
-var adverts = window.generateAdverts(8);
-window.renderAdvertPins(adverts);
+// var adverts = window.generateAdverts(8);
+// window.renderAdvertPins(adverts);
+
+window.load(function (adverts) {
+  window.renderAdvertPins(adverts);
+}, function (errorMessage) {
+  window.showErrorMessage(errorMessage);
+});
