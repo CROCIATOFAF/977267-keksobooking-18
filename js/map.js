@@ -16,14 +16,26 @@
     map.classList.remove('map--faded');
   };
 
+  // Рендерит пины.
   window.renderAdvertPins = function (adverts) {
     var fragment = document.createDocumentFragment();
-    for (var i = 0; i < adverts.length; i++) {
+    // Создаёт новый массив из 5 объвлений.
+    var showFiveAdverts = adverts.slice(0, 5);
+    for (var i = 0; i < showFiveAdverts.length; i++) {
       // Вызываем функцию из другого модуля. Значит этот модуль становится зависим от другого
       // Значит подключаться он должен после него
-      fragment.appendChild(window.renderPin(adverts[i]));
+      fragment.appendChild(window.renderPin(showFiveAdverts[i]));
     }
     window.mapPins.appendChild(fragment);
+  };
+
+  window.clearMap = function () {
+    var allPins = window.mapPins.querySelectorAll('.map__pin');
+    for (var i = 0; i < allPins.length; i++) {
+      if (!allPins[i].classList.contains('map__pin--main')) {
+        allPins[i].remove();
+      }
+    }
   };
 
   // Функция для переноса пина.
