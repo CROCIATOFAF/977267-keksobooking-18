@@ -29,11 +29,9 @@
 
   window.validateRoomsAndGuests = function (guests, rooms) {
     var errorMsg = '';
-
     if (guests > rooms || (rooms === 100 && guests !== 0)) {
       errorMsg = 'Количество гостей не соответствует количеству комнат';
     }
-
     return errorMsg;
   };
 
@@ -45,4 +43,13 @@
     fillAddress.value = address;
   };
 
+  // var adverts = [];
+  // var housingType = document.querySelector('#type');
+  //
+  // var updateAdverts = function () {
+  //   var SortByHousingType = adverts.filter(function (it) {
+  //     return it.housingType === typeHousing;
+  //   });
+  // };
+  //
 })();
