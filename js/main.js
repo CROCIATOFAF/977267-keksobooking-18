@@ -45,7 +45,6 @@ sortByHousingType.addEventListener('change', function () {
   window.renderAdvertPins(filtered.slice(0, 5));
 });
 
-
 // var adverts = window.generateAdverts(8);
 // window.renderAdvertPins(adverts);
 window.load(function (data) {
