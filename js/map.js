@@ -3,6 +3,12 @@
   // Кнопки
   window.ENTER_KEYCODE = 13;
 
+  var housingType = document.querySelector('#housing-type');
+  var housingPrice = document.querySelector('#housing-price');
+  var housingRooms = document.querySelector('#housing-rooms');
+  var housingGuests = document.querySelector('#housing-guests');
+  var housingFeatures = document.querySelectorAll('.map__checkbox');
+
   // Добавление карты в переменную.
   var map = document.querySelector('.map');
   window.mapPins = document.querySelector('.map__pins');
@@ -100,4 +106,75 @@
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
+
+  window.setFiltersChangeListener = function (listener) {
+    housingType.addEventListener('change', window.debounce(listener));
+    housingPrice.addEventListener('change', window.debounce(listener));
+    housingRooms.addEventListener('change', window.debounce(listener));
+    housingGuests.addEventListener('change', window.debounce(listener));
+    for (var i = 0; i < housingFeatures.length; i++) {
+      housingFeatures[i].addEventListener('change', window.debounce(listener));
+    }
+  };
+
+  var isSuitableType = function (advert) {
+    var selectedType = housingType.value;
+    return selectedType === 'any' || selectedType === advert.offer.type;
+  };
+
+  var isSuitablePrice = function (advert) {
+    var selectedPrice = housingPrice.value;
+    if (selectedPrice === 'low') {
+      return advert.offer.price < 10000;
+    } else if (selectedPrice === 'middle') {
+      return advert.offer.price > 10000 && advert.offer.price < 50000;
+    } else if (selectedPrice === 'high') {
+      return advert.offer.price > 50000;
+    } else if (selectedPrice === 'any') {
+      return true;
+    }
+    return false;
+  };
+
+  var isSuitableRooms = function (advert) {
+    var selectedRooms = housingRooms.value;
+    return selectedRooms === 'any' || selectedRooms === advert.offer.rooms;
+  };
+
+  var isSuitableGuests = function (advert) {
+    var selectedGuests = housingGuests.value;
+    return selectedGuests === 'any' || selectedGuests === advert.offer.guests;
+  };
+
+  var collectFeatures = function () {
+    var features = [];
+    for (var i = 0; i < housingFeatures.length; i++) {
+      features.push(housingFeatures[i].value);
+    }
+    return features;
+  };
+
+  var isSuitableFeatures = function (advert) {
+    var selectedFeatures = collectFeatures();
+    for (var i = 0; i < selectedFeatures.length; i++) {
+      if (!advert.offer.features.includes(selectedFeatures[i])) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  window.filterAdverts = function (adverts) {
+    var filtered = [];
+    for (var i = 0; i < adverts.length; i++) {
+      if (isSuitableType(adverts[i])
+      && isSuitablePrice(adverts[i])
+      && isSuitableRooms(adverts[i])
+      && isSuitableGuests(adverts[i])
+      && isSuitableFeatures(adverts[i])) {
+        filtered.push(adverts[i]);
+      }
+    }
+    return filtered;
+  };
 })();
