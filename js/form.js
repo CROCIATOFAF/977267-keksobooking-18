@@ -42,14 +42,4 @@
   window.fillAddressField = function (address) {
     fillAddress.value = address;
   };
-
-  // var adverts = [];
-  // var housingType = document.querySelector('#type');
-  //
-  // var updateAdverts = function () {
-  //   var SortByHousingType = adverts.filter(function (it) {
-  //     return it.housingType === typeHousing;
-  //   });
-  // };
-  //
 })();
