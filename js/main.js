@@ -43,6 +43,7 @@ window.setFiltersChangeListener(function () {
 // window.renderAdvertPins(adverts);
 window.load(function (data) {
   adverts = data;
+  window.renderCard(adverts[0]);
   window.renderAdvertPins(adverts);
 }, function (errorMessage) {
   window.showErrorMessage(errorMessage);
