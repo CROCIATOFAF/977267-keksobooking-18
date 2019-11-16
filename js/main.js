@@ -1,53 +1,77 @@
 'use strict';
 
-// Объявляем локальную функцию, которая будет использовать функцию валидации,
-// объявленную в модуле form
-var validateGuestsAndRoomsFields = function () {
-  var guests = parseInt(window.guestCapacity.value, 10);
-  var rooms = parseInt(window.numberOfRooms.value, 10);
-  window.guestCapacity.setCustomValidity(window.validateRoomsAndGuests(guests, rooms));
-};
+(function () {
+  var adverts = [];
 
-var enableUi = function () {
-  window.openMap();
-  window.enableForm();
-  window.toggleFieldsEnabled(true);
-};
+  var pinClickListener = function (pinAdvert) {
+    var advert = adverts.find(function (item) {
+      return item.offer.title === pinAdvert;
+    });
+    window.map.showCard(window.card.render(advert));
+  };
 
-// Нажатие на пин
-window.mapMainPin.addEventListener('mousedown', enableUi);
+  var mapFiltersChangeListener = function () {
+    var filteredAverts = window.map.filterAdverts(adverts);
+    window.map.renderPins(filteredAverts.slice(0, 5));
+  };
 
-// Нажатие на enter
-window.mapMainPin.addEventListener('keydown', function (evt) {
-  if (evt.keyCode === window.ENTER_KEYCODE) {
-    enableUi();
-  }
-});
+  var dataLoadListener = function (data) {
+    adverts = data;
 
-window.numberOfRooms.addEventListener('change', validateGuestsAndRoomsFields);
-window.guestCapacity.addEventListener('change', validateGuestsAndRoomsFields);
+    window.map.renderPins(adverts.slice(0, 5));
+    window.map.setFiltersEnabled(true);
 
-window.toggleFieldsEnabled(false);
+    window.map.setPinInteractionListener(pinClickListener);
+    window.map.setFiltersChangeListener(mapFiltersChangeListener);
+  };
 
-window.fillAddressField(window.getAddress(window.mapMainPin));
+  var formSuccessSubmitListener = function () {
+    window.message.showSuccess();
+    window.form.reset();
+    window.map.reset();
 
-var adverts = [];
+    window.map.mainPin.addEventListener('mousedown', mainPinClickListener);
+    window.map.mainPin.addEventListener('keydown', mainPinKeyDownListener);
+  };
 
-window.setFiltersChangeListener(function () {
-  var filtered = window.filterAdverts(adverts);
-  window.clearMap();
-  window.renderAdvertPins(filtered.slice(0, 5));
-});
+  var formSubmitListener = function (data) {
+    window.upload.send(data,
+        formSuccessSubmitListener,
+        window.message.showError);
+  };
 
-// var adverts = window.generateAdverts(8);
-// window.renderAdvertPins(adverts);
-window.load(function (data) {
-  adverts = data;
-  var card = window.renderCard(adverts[0]);
-  var mapFiltersContainer = document.querySelector('.map__filters-container');
+  var formResetListener = function () {
+    window.form.reset();
+    window.map.reset();
 
-  window.map.insertBefore(card, mapFiltersContainer);
-  window.renderAdvertPins(adverts);
-}, function (errorMessage) {
-  window.showErrorMessage(errorMessage);
-});
+    window.map.mainPin.addEventListener('mousedown', mainPinClickListener);
+    window.map.mainPin.addEventListener('keydown', mainPinKeyDownListener);
+  };
+
+  var mainPinClickListener = function () {
+    window.map.setEnabled(true);
+
+    window.form.setEnabled(true);
+    window.form.setSubmitListener(formSubmitListener);
+    window.form.setResetListener(formResetListener);
+
+    window.backend.load(dataLoadListener, window.message.showError);
+
+    window.map.mainPin.removeEventListener('mousedown', mainPinClickListener);
+    window.map.mainPin.removeEventListener('keydown', mainPinKeyDownListener);
+  };
+
+  var mainPinKeyDownListener = function (evt) {
+    if (evt.keyCode === window.ENTER_KEYCODE) {
+      mainPinClickListener();
+    }
+  };
+
+  window.map.setEnabled(false);
+
+  window.form.setEnabled(false);
+  window.form.setAddressValue(window.map.getMainPinAddress());
+
+  window.map.mainPin.addEventListener('mousedown', mainPinClickListener);
+  window.map.mainPin.addEventListener('keydown', mainPinKeyDownListener);
+})();

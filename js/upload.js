@@ -1,9 +1,8 @@
 'use strict';
 (function () {
+  var URL = 'https://js.dump.academy/keksobooking';
 
-  var URL = 'https://js.dump.academy/keksobooking/data';
-
-  window.upload = function (data, onSuccess, onError) {
+  var send = function (data, onSuccess, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
@@ -28,11 +27,7 @@
     xhr.send(data);
   };
 
-  window.form.addEventListener('submit', function (evt) {
-    window.upload(new FormData(window.form), function () {
-      window.form.classList.add('ad-form--disabled');
-    });
-    evt.preventDefault();
-  });
-
+  window.upload = {
+    send: send
+  };
 })();

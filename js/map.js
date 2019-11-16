@@ -3,40 +3,72 @@
   // Кнопки
   window.ENTER_KEYCODE = 13;
 
-  var housingType = document.querySelector('#housing-type');
-  var housingPrice = document.querySelector('#housing-price');
-  var housingRooms = document.querySelector('#housing-rooms');
-  var housingGuests = document.querySelector('#housing-guests');
-  var housingFeatures = document.querySelectorAll('.map__checkbox');
+  var typeFilter = document.querySelector('#housing-type');
+  var priceFilter = document.querySelector('#housing-price');
+  var roomsFilter = document.querySelector('#housing-rooms');
+  var guestsFilter = document.querySelector('#housing-guests');
+  var featuresFilter = Array.from(document.querySelectorAll('.map__checkbox'));
+
+  var filtersForm = document.querySelector('.map__filters');
+  var mapFilters = Array.from(filtersForm.children);
 
   // Добавление карты в переменную.
-  window.map = document.querySelector('.map');
-  window.mapPins = document.querySelector('.map__pins');
+  var map = document.querySelector('.map');
+  var mapPins = document.querySelector('.map__pins');
+  var mapFiltersContainer = document.querySelector('.map__filters-container');
+  var mainPin = document.querySelector('.map__pin--main');
 
-  // Обработка собыйтий
-  window.mapMainPin = document.querySelector('.map__pin--main');
-  window.mapPin = document.querySelector('.map__pin');
+  // Ширина карты
+  var mapWidth = document.querySelector('.map__pins').offsetWidth;
+
+  var pinInteractionListener = null;
 
   // Открывает меню, карту.
-  window.openMap = function () {
-    window.map.classList.remove('map--faded');
+  var setEnabled = function (enabled) {
+    if (enabled) {
+      map.classList.remove('map--faded');
+    } else {
+      map.classList.add('map--faded');
+      setFiltersEnabled(enabled);
+    }
+    setPinDragEnabled(enabled);
   };
 
   // Рендерит пины.
-  window.renderAdvertPins = function (adverts) {
+  var renderPins = function (adverts) {
+    clearMap();
+
     var fragment = document.createDocumentFragment();
-    // Создаёт новый массив из 5 объвлений.
-    var showFiveAdverts = adverts.slice(0, 5);
-    for (var i = 0; i < showFiveAdverts.length; i++) {
-      // Вызываем функцию из другого модуля. Значит этот модуль становится зависим от другого
-      // Значит подключаться он должен после него
-      fragment.appendChild(window.renderPin(showFiveAdverts[i]));
-    }
-    window.mapPins.appendChild(fragment);
+    adverts.forEach(function (advert) {
+      var pin = window.pin.render(advert);
+
+      subscribeForPinEvents(pin);
+
+      fragment.appendChild(pin);
+    });
+    mapPins.appendChild(fragment);
   };
 
-  window.clearMap = function () {
-    var allPins = window.mapPins.querySelectorAll('.map__pin');
+  var subscribeForPinEvents = function (pin) {
+    pin.addEventListener('click', function () {
+      onPinInteraction(pin);
+    });
+    pin.addEventListener('keydown', function (evt) {
+      if (evt.key === 'Enter') {
+        onPinInteraction(pin);
+      }
+    });
+  };
+
+  var onPinInteraction = function (pin) {
+    if (pinInteractionListener) {
+      var advertTitle = pin.querySelector('img').alt;
+      pinInteractionListener(advertTitle);
+    }
+  };
+
+  var clearMap = function () {
+    var allPins = mapPins.querySelectorAll('.map__pin');
     for (var i = 0; i < allPins.length; i++) {
       if (!allPins[i].classList.contains('map__pin--main')) {
         allPins[i].remove();
@@ -44,8 +76,7 @@
     }
   };
 
-  // Функция для переноса пина.
-  window.mapMainPin.addEventListener('mousedown', function (evt) {
+  var mainPinMoveListener = function (evt) {
     evt.preventDefault();
 
     var startCoords = {
@@ -54,9 +85,9 @@
     };
 
     var dragged = false;
-    var onMouseMove = function (moveEvt) {
+
+    var mouseMoveListener = function (moveEvt) {
       moveEvt.preventDefault();
-      dragged = true;
 
       var shift = {
         x: startCoords.x - moveEvt.clientX,
@@ -68,62 +99,73 @@
         y: moveEvt.clientY
       };
 
-      window.mapMainPin.style.top = (window.mapMainPin.offsetTop - shift.y) + 'px';
-      window.mapMainPin.style.left = (window.mapMainPin.offsetLeft - shift.x) + 'px';
-      window.fillAddressField(window.getAddress(window.mapMainPin));
+      mainPin.style.top = (mainPin.offsetTop - shift.y) + 'px';
+      mainPin.style.left = (mainPin.offsetLeft - shift.x) + 'px';
 
-      // Функция для ограничения перемещения пина в пределах карты.
-      var pinTop = parseInt(window.mapMainPin.style.top, 10);
-      var pinLeft = parseInt(window.mapMainPin.style.left, 10);
-      // ось OY.
-      if (pinTop < 0) {
-        window.mapMainPin.style.top = 0;
-      } else if (pinTop > parseInt(window.mapHeight, 10) - 80) {
-        window.mapMainPin.style.top = (parseInt(window.mapHeight, 10) - 80) + 'px';
+      var mainPinWidth = mainPin.offsetWidth;
+
+      if (mainPin.offsetTop < 130) {
+        mainPin.style.top = 130 + 'px';
+      } else if (mainPin.offsetTop > 630) {
+        mainPin.style.top = 630 + 'px';
       }
-      // ось OX.
-      if (pinLeft < 0) {
-        window.mapMainPin.style.left = 0;
-      } else if (pinLeft > parseInt(window.mapWidth, 10) - 63) {
-        window.mapMainPin.style.left = (parseInt(window.mapWidth, 10) - 63) + 'px';
+
+      if (mainPin.offsetLeft < -mainPinWidth / 2) {
+        mainPin.style.left = -mainPinWidth / 2 + 'px';
+      } else if (mainPin.offsetLeft > mapWidth - mainPinWidth / 2) {
+        mainPin.style.left = mapWidth - mainPinWidth / 2 + 'px';
       }
+
+      window.form.setAddressValue(getMainPinAddress());
     };
 
-    var onMouseUp = function (upEvt) {
+    var mouseUpListener = function (upEvt) {
       upEvt.preventDefault();
 
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener('mousemove', mouseMoveListener);
+      document.removeEventListener('mouseup', mouseUpListener);
 
       if (dragged) {
-        var onClickPreventDefault = function () {
+        var clickPreventDefaultListener = function () {
           evt.preventDefault();
-          window.mapMainPin.removeEventListener('click', onClickPreventDefault);
+          mainPin.removeEventListener('click', clickPreventDefaultListener);
         };
-        window.mapMainPin.addEventListener('click', onClickPreventDefault);
+        mainPin.addEventListener('click', clickPreventDefaultListener);
       }
     };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  });
 
-  window.setFiltersChangeListener = function (listener) {
-    housingType.addEventListener('change', window.debounce(listener));
-    housingPrice.addEventListener('change', window.debounce(listener));
-    housingRooms.addEventListener('change', window.debounce(listener));
-    housingGuests.addEventListener('change', window.debounce(listener));
-    for (var i = 0; i < housingFeatures.length; i++) {
-      housingFeatures[i].addEventListener('change', window.debounce(listener));
+    document.addEventListener('mousemove', mouseMoveListener);
+    document.addEventListener('mouseup', mouseUpListener);
+  };
+
+  // Функция для переноса пина
+  var setPinDragEnabled = function (enabled) {
+    if (enabled) {
+      mainPin.addEventListener('mousedown', mainPinMoveListener);
+    } else {
+      mainPin.removeEventListener('mousedown', mainPinMoveListener);
     }
   };
 
+  var setFiltersChangeListener = function (listener) {
+    typeFilter.addEventListener('change', window.debounce(listener));
+    priceFilter.addEventListener('change', window.debounce(listener));
+    roomsFilter.addEventListener('change', window.debounce(listener));
+    guestsFilter.addEventListener('change', window.debounce(listener));
+
+    featuresFilter.forEach(function (filter) {
+      filter.addEventListener('change', window.debounce(listener));
+    });
+  };
+
   var isSuitableType = function (advert) {
-    var selectedType = housingType.value;
-    return selectedType === 'any' || selectedType === advert.offer.type;
+    var selectedType = typeFilter.value;
+    return selectedType === 'any'
+      || selectedType === advert.offer.type;
   };
 
   var isSuitablePrice = function (advert) {
-    var selectedPrice = housingPrice.value;
+    var selectedPrice = priceFilter.value;
     if (selectedPrice === 'low') {
       return advert.offer.price < 10000;
     } else if (selectedPrice === 'middle') {
@@ -133,48 +175,121 @@
     } else if (selectedPrice === 'any') {
       return true;
     }
-    return false;
+    return true;
   };
 
   var isSuitableRooms = function (advert) {
-    var selectedRooms = housingRooms.value;
-    return selectedRooms === 'any' || selectedRooms === advert.offer.rooms;
+    var selectedRooms = parseInt(roomsFilter.value, 10);
+    return roomsFilter.value === 'any'
+      || selectedRooms === parseInt(advert.offer.rooms, 10);
   };
 
   var isSuitableGuests = function (advert) {
-    var selectedGuests = housingGuests.value;
-    return selectedGuests === 'any' || selectedGuests === advert.offer.guests;
+    var selectedGuests = parseInt(guestsFilter.value, 10);
+    return guestsFilter.value === 'any'
+      || selectedGuests === advert.offer.guests;
   };
 
-  var collectFeatures = function () {
+  var getSelectedFeatures = function () {
     var features = [];
-    for (var i = 0; i < housingFeatures.length; i++) {
-      features.push(housingFeatures[i].value);
-    }
+    featuresFilter.forEach(function (feature) {
+      if (feature.checked) {
+        features.push(feature.value);
+      }
+    });
     return features;
   };
 
   var isSuitableFeatures = function (advert) {
-    var selectedFeatures = collectFeatures();
-    for (var i = 0; i < selectedFeatures.length; i++) {
-      if (!advert.offer.features.includes(selectedFeatures[i])) {
-        return false;
-      }
-    }
-    return true;
+    return getSelectedFeatures().every(function (feature) {
+      return advert.offer.features.includes(feature);
+    });
   };
 
-  window.filterAdverts = function (adverts) {
-    var filtered = [];
+  var filterAdverts = function (adverts) {
+    var filteredAverts = [];
     for (var i = 0; i < adverts.length; i++) {
       if (isSuitableType(adverts[i])
-      && isSuitablePrice(adverts[i])
-      && isSuitableRooms(adverts[i])
-      && isSuitableGuests(adverts[i])
-      && isSuitableFeatures(adverts[i])) {
-        filtered.push(adverts[i]);
+        && isSuitablePrice(adverts[i])
+        && isSuitableRooms(adverts[i])
+        && isSuitableGuests(adverts[i])
+        && isSuitableFeatures(adverts[i])) {
+        filteredAverts.push(adverts[i]);
       }
     }
-    return filtered;
+    return filteredAverts;
+  };
+
+  var getMainPinAddress = function () {
+    return parseInt(mainPin.style.left, 10) +
+      ', ' +
+      parseInt(mainPin.style.top, 10);
+  };
+
+  var keyDownListener = function (evt) {
+    if (evt.key === 'Escape') {
+      var card = document.querySelector('.map__card');
+      if (card) {
+        card.remove();
+      }
+    }
+    document.removeEventListener('keydown', keyDownListener);
+  };
+
+  var showCard = function (card) {
+    removeCard();
+
+    map.insertBefore(card, mapFiltersContainer);
+    document.addEventListener('keydown', keyDownListener);
+  };
+
+  var setPinInteractionListener = function (listener) {
+    pinInteractionListener = listener;
+  };
+
+  var reset = function () {
+    clearMap();
+    setEnabled(false);
+    filtersForm.reset();
+
+    mainPin.style.top = '375px';
+    mainPin.style.left = '570px';
+    window.form.setAddressValue(getMainPinAddress());
+
+    removeCard();
+  };
+
+  var removeCard = function () {
+    var card = document.querySelector('.map__card');
+    if (card) {
+      card.remove();
+    }
+  };
+
+  var setFiltersEnabled = function (enabled) {
+    if (enabled) {
+      mapFilters.forEach(function (node) {
+        node.removeAttribute('disabled', 'disabled');
+      });
+    } else {
+      mapFilters.forEach(function (node) {
+        node.setAttribute('disabled', 'disabled');
+      });
+    }
+  };
+
+  window.map = {
+    mainPin: mainPin,
+
+    getMainPinAddress: getMainPinAddress,
+    setEnabled: setEnabled,
+    renderPins: renderPins,
+    filterAdverts: filterAdverts,
+    showCard: showCard,
+    reset: reset,
+    setFiltersEnabled: setFiltersEnabled,
+
+    setFiltersChangeListener: setFiltersChangeListener,
+    setPinInteractionListener: setPinInteractionListener
   };
 })();
