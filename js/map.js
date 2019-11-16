@@ -10,7 +10,7 @@
   var housingFeatures = document.querySelectorAll('.map__checkbox');
 
   // Добавление карты в переменную.
-  var map = document.querySelector('.map');
+  window.map = document.querySelector('.map');
   window.mapPins = document.querySelector('.map__pins');
 
   // Обработка собыйтий
@@ -19,7 +19,7 @@
 
   // Открывает меню, карту.
   window.openMap = function () {
-    map.classList.remove('map--faded');
+    window.map.classList.remove('map--faded');
   };
 
   // Рендерит пины.

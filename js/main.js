@@ -43,6 +43,10 @@ window.setFiltersChangeListener(function () {
 // window.renderAdvertPins(adverts);
 window.load(function (data) {
   adverts = data;
+  var card = window.renderCard(adverts[0]);
+  var mapFiltersContainer = document.querySelector('.map__filters-container');
+
+  window.map.insertBefore(card, mapFiltersContainer);
   window.renderAdvertPins(adverts);
 }, function (errorMessage) {
   window.showErrorMessage(errorMessage);
